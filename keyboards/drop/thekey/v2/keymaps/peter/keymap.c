@@ -3,6 +3,7 @@
  *  - Lock screen on SO key tap (Win/Super/GUI + L)
  *  - RGB light configuration on SO key hold
  *  - Copy/paste on C/V key tap
+ *  - Custom strings on C/V key hold
  *  - Automatic RGB timeout on inactivity
  *
  * Copyright 2025 Peter Feichtinger <shippo@gmx.at>
@@ -12,6 +13,8 @@
 #include QMK_KEYBOARD_H
 
 #define HSV_WHITE50 0, 0, 127
+#define STRING_C "My string."
+#define STRING_V "My other string!"
 
 enum custom_keycodes {
     LAYER_SWITCH = SAFE_RANGE,
@@ -19,7 +22,7 @@ enum custom_keycodes {
 
 const uint16_t PROGMEM keymaps[][MATRIX_ROWS][MATRIX_COLS] = {
     /* Default */
-    [0] = LAYOUT(LT(0, KC_L), C(KC_C), C(KC_V)),
+    [0] = LAYOUT(LT(0, KC_L), LT(0, KC_C), LT(0, KC_V)),
 
     /* RGB Toggle + Mode Change */
     [1] = LAYOUT(LAYER_SWITCH, QK_UNDERGLOW_TOGGLE, QK_UNDERGLOW_MODE_NEXT),
@@ -84,6 +87,26 @@ bool process_record_user(uint16_t keycode, keyrecord_t *record) {
             } else if (record->event.pressed) {
                 // SO key hold -> Enter setup layer
                 next_layer();
+            }
+            return false;
+
+        case LT(0, KC_C):
+            if (record->tap.count && record->event.pressed) {
+                // SO key tap -> Copy
+                tap_code16(C(KC_C));
+            } else if (record->event.pressed) {
+                // SO key hold -> Enter string C
+                SEND_STRING(STRING_C);
+            }
+            return false;
+
+        case LT(0, KC_V):
+            if (record->tap.count && record->event.pressed) {
+                // SO key tap -> Paste
+                tap_code16(C(KC_V));
+            } else if (record->event.pressed) {
+                // SO key hold -> Enter string V
+                SEND_STRING(STRING_V);
             }
             return false;
 
